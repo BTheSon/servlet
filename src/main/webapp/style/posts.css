@@ -91,42 +91,84 @@ body {
 
 .suggestions {
     background: white;
-    padding: 20px 24px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px -10px rgba(15, 23, 42, 0.15);
-    border: 1px solid #e2e8f0;
-    margin-bottom: 30px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
 }
 
-.suggestions-header {
+.suggest-list {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    color: #0f172a;
-    font-weight: 600;
+    flex-direction: column;
 }
 
 .suggest-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px dashed #e5e7eb;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .suggest-item:last-child {
     border-bottom: none;
 }
 
+.suggest-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suggest-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
 .suggest-username {
-    font-weight: 500;
-    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.follow-btn-sm {
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.follow-btn-sm:hover {
+    background: #0f172a;
+    transform: scale(1.02);
+}
+
+.followed-badge {
+    color: #10b981;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .suggest-empty {
-    color: #6b7280;
-    font-size: 14px;
+    padding: 20px 0;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
 }
 
 /* POST FORM (đơn giản + dễ maintain) */

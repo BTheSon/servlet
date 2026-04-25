@@ -12,6 +12,7 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
+import model.PostDTO;
 
 @WebServlet("/posts")
 public class PostServlet extends HttpServlet {
@@ -44,28 +45,46 @@ public class PostServlet extends HttpServlet {
 
         int userId = user.getId();
 
-        // ===== Lấy danh sách bài viết =====
-        List<Post> posts = postDAO.getFeedPosts(userId);
+        // Pagination parameters
+        int offset = 0;
+        int limit = 5;
+        try {
+            String offsetParam = request.getParameter("offset");
+            if (offsetParam != null) offset = Integer.parseInt(offsetParam);
+        } catch (NumberFormatException e) {}
+
+        // ===== Lấy danh sách bài viết (Ranked Feed) =====
+        List<PostDTO> posts = postDAO.getRankedFeedPosts(userId, limit, offset);
         request.setAttribute("posts", posts);
+        request.setAttribute("nextOffset", offset + limit);
+        request.setAttribute("hasMore", posts.size() == limit);
 
-        // ===== Gợi ý follow =====
-        List<User> allUsers = userDAO.getAllUsers();
-        List<Integer> followingIds = followDAO.getFollowingList(userId);
+        // Check for HTMX request
+        boolean isHtmx = "true".equals(request.getHeader("HX-Request"));
 
-        List<User> suggestedUsers = new ArrayList<>();
+        if (isHtmx) {
+            // Trả về chỉ fragment danh sách bài viết
+            request.getRequestDispatcher("/WEB-INF/views/fragments/post_list.jsp")
+                   .forward(request, response);
+        } else {
+            // ===== Gợi ý follow (Chỉ load ở trang chính) =====
+            List<User> allUsers = userDAO.getAllUsers();
+            List<Integer> followingIds = followDAO.getFollowingList(userId);
 
-        if (allUsers != null) {
-            for (User u : allUsers) {
-                if (u.getId() != userId &&
-                    (followingIds == null || !followingIds.contains(u.getId()))) {
-                    suggestedUsers.add(u);
+            List<User> suggestedUsers = new ArrayList<>();
+            if (allUsers != null) {
+                for (User u : allUsers) {
+                    if (u.getId() != userId &&
+                        (followingIds == null || !followingIds.contains(u.getId()))) {
+                        suggestedUsers.add(u);
+                    }
                 }
             }
-        }
+            request.setAttribute("suggestedUsers", suggestedUsers);
 
-        request.setAttribute("suggestedUsers", suggestedUsers);
-        request.getRequestDispatcher("/WEB-INF/views/posts.jsp")
-               .forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/posts.jsp")
+                   .forward(request, response);
+        }
     }
 
     // ===================== POST =====================

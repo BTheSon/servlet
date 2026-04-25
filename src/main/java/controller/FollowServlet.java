@@ -17,6 +17,13 @@ public class FollowServlet extends HttpServlet {
         if (user != null) {
             new FollowDAO().follow(user.getId(), followedUserId);
         }
-        response.sendRedirect("users");
+
+        String htmxRequest = request.getHeader("HX-Request");
+        if ("true".equals(htmxRequest)) {
+            response.setContentType("text/html");
+            response.getWriter().write("<span class='followed-badge'><i class='fas fa-check'></i> Đã theo dõi</span>");
+        } else {
+            response.sendRedirect("users");
+        }
     }
 }

@@ -40,6 +40,9 @@ public class DatabaseInitializer implements ServletContextListener {
                 }
             }
             System.out.println("Khởi tạo Database thành công!");
+
+            // Tự động tạo dữ liệu mẫu nếu cần
+            SampleDataGenerator.generate();
             
         } catch (Exception e) {
             System.err.println("Lỗi khi tự động khởi tạo DB: " + e.getMessage());

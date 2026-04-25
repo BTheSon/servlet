@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*, model.Post, model.User" %>
+<%@ page import="java.util.*, model.Post, model.PostDTO, model.User" %>
 
 <!DOCTYPE html>
 <html>
@@ -8,12 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/style/posts.css">
+    <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body>
 
 <%
     User user = (User) request.getAttribute("user");
-    List<Post> posts = (List<Post>) request.getAttribute("posts");
+    List<PostDTO> posts = (List<PostDTO>) request.getAttribute("posts");
     List<User> suggestedUsers = (List<User>) request.getAttribute("suggestedUsers");
 %>
 
@@ -96,54 +98,9 @@
       </div>
 
       <!-- LOOP POSTS -->
-      <%
-          for(Post post : posts){
-      %>
-      <div class="post">
-
-        <div class="content">
-            <h4><%= post.getTitle() %></h4>
-
-            <div class="meta">
-                <span><i class="far fa-clock"></i> <%= post.getCreatedAt() %></span>
-
-                <%
-                    if("published".equals(post.getStatus())){
-                %>
-                    <span class="status-badge status-published-badge">
-                        <i class="fas fa-globe"></i> Công khai
-                    </span>
-                <%
-                    } else {
-                %>
-                    <span class="status-badge status-draft-badge">
-                        <i class="fas fa-lock"></i> Bản nháp
-                    </span>
-                <%
-                    }
-                %>
-            </div>
-
-            <div class="post-body">
-                <%= post.getBody() %>
-            </div>
-
-            <div class="post-actions">
-                <button onclick="alert('Đã thích bài viết!')">
-                    Thích
-                </button>
-                <button onclick="alert('Mở comment!')">
-                    Bình luận
-                </button>
-                <button onclick="alert('Chia sẻ!')">
-                    Chia sẻ
-                </button>
-            </div>
-        </div>
+      <div id="post-container">
+          <jsp:include page="fragments/post_list.jsp" />
       </div>
-      <%
-          }
-      %>
 
       <hr>
       <div style="text-align: center;">
@@ -158,27 +115,38 @@
         <div class="suggestions">
 
           <div class="suggestions-header">
+              <i class="fas fa-user-plus" style="color: #3b82f6;"></i>
               <span>Gợi ý theo dõi</span>
           </div>
 
+          <div class="suggest-list">
           <%
               if(suggestedUsers == null || suggestedUsers.isEmpty()){
           %>
-              <div>Hiện không còn tài khoản nào để gợi ý.</div>
+              <div class="suggest-empty">Hiện không còn tài khoản gợi ý.</div>
           <%
               } else {
                   for(User u : suggestedUsers){
           %>
-              <form action="follow" method="post">
-                  <span><%= u.getUsername() %></span>
-                  <input type="hidden" name="userId" value="<%= u.getId() %>" />
-                  <button type="submit">Follow</button>
-              </form>
+              <div class="suggest-item">
+                  <div class="suggest-user-info">
+                      <div class="suggest-avatar">
+                          <%= u.getUsername().substring(0, 1).toUpperCase() %>
+                      </div>
+                      <span class="suggest-username"><%= u.getUsername() %></span>
+                  </div>
+                  <form hx-post="follow" hx-target="this" hx-swap="outerHTML">
+                      <input type="hidden" name="userId" value="<%= u.getId() %>" />
+                      <button type="submit" class="follow-btn-sm">
+                          Theo dõi
+                      </button>
+                  </form>
+              </div>
           <%
                   }
               }
           %>
-
+          </div>
         </div>
       </div>
     </aside>
