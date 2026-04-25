@@ -30,7 +30,39 @@ CREATE TABLE IF NOT EXISTS follows (
     FOREIGN KEY (following_user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (followed_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
 USE employees;
+
+CREATE TABLE IF NOT EXISTS post_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_like (post_id, user_id),          -- Mỗi user chỉ like 1 lần
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+USE employees;
+
+-- bảng tương tác giữa người dùng
+CREATE TABLE IF NOT EXISTS interactions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    actor_id INT NOT NULL,           -- Người thực hiện hành động
+    target_user_id INT,              -- Người bị tác động (nullable nếu target là post)
+    target_post_id INT,              -- Bài viết liên quan (nullable)
+    type ENUM(
+        'like_post',
+        'view_profile'
+    ) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (target_post_id) REFERENCES posts(id) ON DELETE SET NULL
+);
+
+USE employees;
+
 -- 5. Chèn dữ liệu mẫu (Sử dụng INSERT IGNORE để không bị lỗi trùng lặp khi chạy lại)
 INSERT IGNORE INTO users(id, username, password, role) VALUES
 (1, 'admin', '123', 'admin'),
